@@ -1,3 +1,7 @@
+import { Card, Button } from 'react-bootstrap';
+import { formatCurrency } from '../utilities/formatCurrency';
+import { useShoppingCart } from '../context/ShoppingCartContext';
+
 type StoreItemProps = {
   id: number,
   name: string,
@@ -5,19 +9,16 @@ type StoreItemProps = {
   imgUrl: string
 };
 
-import { Card, Button } from 'react-bootstrap';
-import { useShoppingCart } from '../context/ShoppingCartContext';
-import { formatCurrency } from '../utilities/formatCurrency';
+export function StoreItem({ id, name, price, imgUrl }:StoreItemProps) {  
+  const { getItemQuantity, increaseItemQuantity, decreaseItemQuantity, removeFromCart } = useShoppingCart();
 
-export function StoreItem({id, name, price, imgUrl}:StoreItemProps){  
-  const { getItemCount, increaseCartQuantity, decreaseCartQuantity, removeFromCart } = useShoppingCart();
-  
-  const quantity = getItemCount(id);
-   
+  const itemQty = getItemQuantity(id);
+
   return (
   <Card className='h-100'>
     <Card.Img
-      variant='top' src={imgUrl}
+        variant='top'
+        src={imgUrl}
       height='200px'
       style={{objectFit:'cover'}}
     />
@@ -32,34 +33,37 @@ export function StoreItem({id, name, price, imgUrl}:StoreItemProps){
         <span className='ms-2 text-muted'>{formatCurrency(price)}</span>
         <span></span>
       </Card.Title>
-      <div className='mt-auto'>
-        {quantity === 0 ? (
-            <Button
-              onClick={()=>increaseCartQuantity(id)}
-          className='w-100'
-          >+ Add to Cart</Button>
-        ) : <div
-            className='d-flex align-items-center flex-column'
-            style={{gap:'1.5rem'}}
-          >
-            <div className='d-flex align-items-center justify-content-center'
-            style={{gap:'1.5rem'}}
-            >
-                <Button
-                onClick={()=>decreaseCartQuantity(id)}
-                >-</Button>
-              <div>
-                <span className='fs-3'>{quantity}</span> in cart
-              </div>
+        <div className='mt-auto'>
+          {  itemQty < 1 ? 
+            (<Button
+              onClick={()=>increaseItemQuantity(id)}
+            className='w-100'
+            >+ Add to Cart</Button>
+              ) : (
+              <div
+                className='d-flex align-items-center flex-column'
+                style={{ gap: '1.5rem' }}
+              >
+                <div className='d-flex align-items-center justify-content-center'
+                  style={{ gap: '1.5rem' }}
+                >
+                  <Button
+                    onClick={()=>decreaseItemQuantity(id)}
+                  >-</Button>
+                  <div>
+                    <span className='fs-3'>{itemQty}</span> in cart
+                  </div>
               
+                  <Button
+                    onClick={()=>increaseItemQuantity(id)}
+                  >+</Button>
+                </div>
                 <Button
-                onClick={()=>increaseCartQuantity(id)}
-                >+</Button>
-            </div>
-              <Button
-                onClick={()=>removeFromCart(id)}
-                variant='danger btn-sm'>Remove</Button>
-     </div>}
+                  onClick={()=>removeFromCart(id)}
+                  variant='danger btn-sm'>Remove</Button>
+              </div>
+              )
+          }
       </div>
    </Card.Body>
   </Card>
